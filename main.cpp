@@ -17,6 +17,8 @@
 #include <stdlib.h>
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include "Objeto.h"
 #include "middleware.h"
 
 
@@ -31,6 +33,12 @@ int main(int argc, char *argv[]){
 
   crearJson("out/monumentos.json", monumentos);
   parsearJson(monumentos);
-  cout << generarString(monumentos) << endl;
+  //cout << generarString(monumentos) << endl;
+  vector<Objeto> monumento;
+  buscarObjetos("fra", monumentos, monumento);
+  for(Objeto m: monumento){
+    cout << "**********" << endl;
+    cout << generateString(m) << endl;
+  }
   return EXIT_SUCCESS;
 }

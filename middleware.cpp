@@ -85,3 +85,19 @@ string generarString(middleware &m){
 
   return lista;
 }
+
+void buscarObjetos(const string query, middleware &m, vector<Objeto> &res){
+  if(!esVacio(m.d)){
+    iniciarIterador(m.d);
+    while(existeSiguiente(m.d)){
+      string cod;
+      Objeto o;
+      bool error;
+      siguiente(m.d, cod, o, error);
+      //cout << generateString(o);
+      if(!error && allToString(o).find(query) != std::string::npos){
+        res.push_back(o);
+      }
+    }
+  }
+}
