@@ -17,7 +17,6 @@
 #include <stdlib.h>
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include "Objeto.h"
 #include "middleware.h"
 
@@ -30,15 +29,36 @@
  */
 int main(int argc, char *argv[]){
   middleware monumentos;
+  middleware restaurantes;
 
   crearJson("out/monumentos.json", monumentos);
+  crearJson("out/restaurantes.json", restaurantes);
   parsearJson(monumentos);
+  parsearJson(restaurantes);
+
   //cout << generarString(monumentos) << endl;
-  vector<Objeto> monumento;
-  buscarObjetos("fra", monumentos, monumento);
-  for(Objeto m: monumento){
-    cout << "**********" << endl;
-    cout << generateString(m) << endl;
+  Objeto listaMonumentos[5];
+  string querys[5] = {"fra", "Jorge", "Expo"};
+  cout << querys[4] << endl;
+  int error;
+  buscarObjetos(querys, monumentos, listaMonumentos, error);
+  Coordinates c;
+  for(int i = 0; error == -1 && i < 5 && getTitle(listaMonumentos[i]) != ""; i++){
+    cout << "*****Monumentos encontrados*****" << endl;
+    cout << generateString(listaMonumentos[i]) << endl;
+    c.lon = getCoordinates(listaMonumentos[i]).lon;
+    c.lat = getCoordinates(listaMonumentos[i]).lat;
+  }
+
+  int err;
+  //Coordinates c;
+  //c.lon = 675125.210000;
+  //c.lat = 4613725.410000;
+  Objeto listaRestaurantes[5];
+  buscarCoordenadas(c, restaurantes, listaRestaurantes, err);
+  for(int i = 0; err == -1 && i < 5 && getTitle(listaRestaurantes[i]) != ""; i++){
+    cout << "=====Restaurantes cercanos=====" << endl;
+    cout << generateString(listaRestaurantes[i]) << endl;
   }
   return EXIT_SUCCESS;
 }

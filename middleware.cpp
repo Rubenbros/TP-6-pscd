@@ -16,7 +16,6 @@
 
 #include <string>
 #include <iostream>
-#include <vector>
 #include <fstream>
 #include "src/json.hpp"
 #include "diccionario.h"
@@ -86,18 +85,50 @@ string generarString(middleware &m){
   return lista;
 }
 
-void buscarObjetos(const string query, middleware &m, vector<Objeto> &res){
+void buscarObjetos(const string querys[5], middleware &m, Objeto (&res)[5], int &error){
   if(!esVacio(m.d)){
     iniciarIterador(m.d);
+    int pos = 0;
+    bool err;
+
     while(existeSiguiente(m.d)){
       string cod;
       Objeto o;
-      bool error;
-      siguiente(m.d, cod, o, error);
-      //cout << generateString(o);
-      if(!error && allToString(o).find(query) != std::string::npos){
-        res.push_back(o);
+      siguiente(m.d, cod, o, err);
+      string cadena = allToString(o);
+      bool introducido = false;
+
+      for(int i = 0; i < 5 && querys[i] != ""; i++){
+        if(pos < 5 && !err && !introducido && cadena.find(querys[i]) != std::string::npos){
+          res[pos] = o;
+          pos++;
+          introducido = true;
+        }
       }
     }
+    error = pos > 0 ? -1 : 0;
+    error = err ? 1 : error;
+  }
+}
+
+void buscarCoordenadas(const Coordinates &c, middleware &m, Objeto (&res)[5], int &error){
+  if(!esVacio(m.d)){
+    iniciarIterador(m.d);
+    int pos = 0;
+    bool err;
+
+    while(existeSiguiente(m.d)){
+      string cod;
+      Objeto o;
+      siguiente(m.d, cod, o, err);
+
+      if(pos < 5 && !err && floor(c.lon/1000) == floor(getCoordinates(o).lon/1000)
+          && floor(c.lat/1000) == floor(getCoordinates(o).lat/1000)){
+        res[pos] = o;
+        pos++;
+      }
+    }
+    error = pos > 0 ? -1 : 0;
+    error = err ? 1 : error;
   }
 }
