@@ -100,14 +100,32 @@ void buscarObjetos(const string querys[5], middleware &m, Objeto (&res)[5], int 
 
       for(int i = 0; i < 5 && querys[i] != ""; i++){
         if(pos < 5 && !err && !introducido && cadena.find(querys[i]) != std::string::npos){
+          o.index++;
           res[pos] = o;
           pos++;
           introducido = true;
+        }else if(introducido){
+          res[pos].index++;
         }
       }
     }
+
+    ordenarPorIndex(res);
+
     error = pos > 0 ? -1 : 0;
     error = err ? 1 : error;
+  }
+}
+
+void ordenarPorIndex(Objeto (&res)[5]){
+  for(int i = 0; i < 5; i++){
+    for(int j = 0; j < 4; j++){
+      Objeto aux = res[j];
+      if(res[j].index < res[j+1].index){
+        res[j] = res[j+1];
+        res[j+1] = aux;
+      }
+    }
   }
 }
 
