@@ -27,6 +27,7 @@ void crear(const string title,const Coordinates coordinates, const string link,
   o.category = category;
   o.date = date;
   o.icon = icon;
+  o.index = 0;
 }
 
 string getTitle(const Objeto &o){

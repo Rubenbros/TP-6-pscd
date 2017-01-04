@@ -26,7 +26,7 @@ struct Coordinates{
 
 struct Objeto;
 void crear(const string title,const Coordinates coordinates, const string link,
-      const string description, const string category, const string date, const string icon, Objeto &o);
+    const string description, const string category, const string date, const string icon, Objeto &o);
 string getTitle(const Objeto &o);
 Coordinates getCoordinates(const Objeto &o);
 string getLink(const Objeto &o);
@@ -49,6 +49,7 @@ struct Objeto{
   friend string getIcon(const Objeto &o);
   friend string allToString(const Objeto &o);
   friend string generateString(const Objeto &o);
+  int index;
 
   private:
   string title;

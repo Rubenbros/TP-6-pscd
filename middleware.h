@@ -67,6 +67,8 @@ string generarString(middleware &m);
 //DATE:
 //ICON:
 
+void ordenarPorIndex(Objeto (&res)[5]);
+
 struct middleware{
   friend void crearJson(string nombre, middleware &m);
   friend bool parsearJson(middleware &m);
@@ -78,5 +80,6 @@ struct middleware{
   string path;
   diccionario <string, Objeto> d;
   friend bool anyadirNuevoObjeto(middleware &m, const string &clave, Objeto &valor);
+  friend void ordenarPorIndex(Objeto (&res)[5]);
 };
 #endif
