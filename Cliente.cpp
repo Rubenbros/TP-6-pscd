@@ -10,7 +10,6 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
-#include <vector>
 #include "Objeto.h"
 #include "middleware.h"
 #include "Socket.h"
@@ -65,82 +64,93 @@ int main(int argc, char** argv) {
 			socket.Close(socket_fd);
 			exit(1);
 		}
-
+		// si ya no quiero enviar mas
 		if(mensaje == MENS_FIN){
 			i = 4;
 		}
 		i++;
 	} while(i < 5);
 
-	    // Buffer para almacenar la respuesta
-		string buffer[5];
+    // Buffer para almacenar la respuesta
+	string buffer;
 
-		// Recibimos la respuesta del servidor  
-		int read_bytes = socket.Recv(socket_fd, buffer[0], MESSAGE_SIZE);
+	// Recibimos la respuesta del servidor  
+	int read_bytes = socket.Recv(socket_fd, buffer, MESSAGE_SIZE);
+	if(read_bytes == -1) {
+		cerr << "Error al recibir datos: " << strerror(errno) << endl;
+		// Cerramos el socket
+		socket.Close(socket_fd);
+	}
+	if(buffer == "No puedo atenderte"){
+		cout << buffer << endl;
+	}
+	else if (buffer == "Nada encontrado"){
+		cout << buffer << endl;
+	}
+	else{
+		char *cstr = new char [buffer.length()+1];
+  		strcpy (cstr, buffer.c_str());
+		char *url;
+		url = strtok(cstr,",");
+		i = 0;
+		while (url != NULL){
+			cout << "**********************************" << endl;
+			cout << "Monumento numero " << i << endl;
+    		string sUrl(url);
+    		cout << sUrl << endl;
+    		string cmd("firefox "+sUrl);
+			int v = system(cmd.c_str());
+			if(v != 0){
+				cerr << "Ha habido algún problema al abrir el navegador" << endl;
+			}
+			url = strtok (NULL, ",");
+			i++;
+		}
+		string solicitud;
+		int num = i;
+		//elije el monumento
+		while(num > i-1){
+    		cout << "Elija un monumento entre 0 y " << i-1 << endl;
+    		getline(cin, solicitud);
+    		num = atoi(solicitud.c_str());
+    	}
+    	
+    	//envia el monumento
+    	int send_bytes = socket.Send(socket_fd, solicitud);
+	    if(send_bytes == -1){
+			cerr << "Error al enviar datos: " << strerror(errno) << endl;
+			// Cerramos el socket
+			socket.Close(socket_fd);
+			exit(1);
+		}
+
+
+    	string restaurante;
+    	//recibe el restaurante
+    	int read_bytes = socket.Recv(socket_fd, restaurante, MESSAGE_SIZE);
+		if(read_bytes == -1) {
+			cerr << "Error al enviar datos: " << strerror(errno) << endl;
+			// Cerramos el socket
+			socket.Close(socket_fd);
+		}
+		cout << "+++++++++++++++++++++++++++++++++" << endl;
+		cout << "Restaurante mas cercano" << endl;
+		cout << restaurante << endl;
+		string res("firefox "+restaurante);
+		int v = system(res.c_str());
+		if(v != 0){
+			cerr << "Ha habido algún problema al abrir el navegador" << endl;
+		}
+
+		string respuesta;
+		//recibe el precio
+		read_bytes = socket.Recv(socket_fd, respuesta, MESSAGE_SIZE);
 		if(read_bytes == -1) {
 			cerr << "Error al recibir datos: " << strerror(errno) << endl;
 			// Cerramos el socket
 			socket.Close(socket_fd);
 		}
-		if(buffer[0] == "No puedo atenderte"){
-			cout << buffer[0] << endl;
-		}
-		else if (buffer[0] == "Nada encontrado"){
-			cout << buffer[0] << endl;
-		}
-		else{
-			middleware monumentos;
-  			crearJson("out/monumentos.json", monumentos);
-  			parsearJson(monumentos);
-  			//cout << generarString(monumentos) << endl;
-  			vector<Objeto> monumento;
-  			buscarObjetos(buffer[0], monumentos, monumento);
-  			for(Objeto m: monumento){
-    			cout << "**********" << endl;
-    			cout << generateString(m) << endl;
-  			}
-    		i = 1;
-    		bool final = false;
-    		do{
-    			int read_bytes = socket.Recv(socket_fd, buffer[i], MESSAGE_SIZE);
-				if(read_bytes == -1) {
-					cerr << "Error al recibir datos: " << strerror(errno) << endl;
-					// Cerramos el socket
-					socket.Close(socket_fd);
-				}
-				if(buffer[i] == MENS_FIN){
-					final = true;
-				}
-				else{
-					buscarObjetos(buffer[0], monumentos, monumento);
-	  				for(Objeto m: monumento){
-    					cout << "**********" << endl;
-    					cout << generateString(m) << endl;
-					}
-	    			i++;
-	    		}
-    		} while(i < 5);
-    		string solicitud;
-    		int num = i;
-    		while(num > i-1){
-	    		cout << "Elija un monumento entre 0 y " << i-1 << endl;
-	    		getline(cin, solicitud);
-	    		num = atoi(solicitud.c_str());
-	    	}
-	    	int read_bytes = socket.Recv(socket_fd, buffer[num], MESSAGE_SIZE);
-			if(read_bytes == -1) {
-				cerr << "Error al recibir datos: " << strerror(errno) << endl;
-				// Cerramos el socket
-				socket.Close(socket_fd);
-			}
-			string respuesta;
-			read_bytes = socket.Recv(socket_fd, respuesta, MESSAGE_SIZE);
-			if(read_bytes == -1) {
-				cerr << "Error al recibir datos: " << strerror(errno) << endl;
-				// Cerramos el socket
-				socket.Close(socket_fd);
-			}
-		}
+	}
 
 
     // Cerramos el socket
