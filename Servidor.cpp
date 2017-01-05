@@ -7,7 +7,6 @@
 #include "Socket.h"
 
 using namespace std;
-const int NUM_CLIENTES = 100;
 
 const int MESSAGE_SIZE = 4001; //mensajes de no más 4000 caracteres
 
@@ -120,7 +119,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Listen
-	int max_connections = 10;
+	int max_connections = 100;
 	int error_code = socket.Listen(max_connections);
 	if(error_code == -1) {
 		cerr << "Error en el listen: " << strerror(errno) << endl;
@@ -128,9 +127,9 @@ int main(int argc, char *argv[]) {
 		socket.Close(socket_fd);
 		exit(1);
 	}
-	thread cliente[NUM_CLIENTES];
+	thread cliente[max_connections];
 	int i=0;
-	while(i<NUM_CLIENTES){
+	while(i<max_connections){
 		// Accept
 		int client_fd = socket.Accept();
 		if(client_fd == -1) {
@@ -142,7 +141,16 @@ int main(int argc, char *argv[]) {
 		cliente[i]=thread(&Proceso,i,socket,client_fd,ref(monumentos),ref(restaurantes));
 		i++;
 	}	
-	for(i=0;i<NUM_CLIENTES;i++){
-		cliente[i].join();
+	for(int j=0;j<max_connections;j++){
+		cliente[j].join();
 	}
+	// Cerramos el socket del servidor
+    error_code = socket.Close(socket_fd);
+    if(error_code == -1){
+    	cerr << "Error cerrando el socket del servidor: " << strerror(errno) << endl;
+    }
+	// Mensaje de despedida
+	cout << "Bye bye" << endl;
+
+    return error_code;
 }
