@@ -140,6 +140,13 @@ int main(int argc, char** argv) {
 		    		cout << "Elija un monumento entre 0 y " << i-1 << endl;
 		    		getline(cin, solicitud);
 		    		num = atoi(solicitud.c_str());
+				int send_bytes = socket.Send(socket_fd, solicitud);
+				if(send_bytes == -1){
+					cerr << "Error al enviar datos: " << strerror(errno) << endl;
+					// Cerramos el socket
+					socket.Close(socket_fd);
+					exit(1);
+				}
 		    	}
 		    	
 		    	//envia el monumento
@@ -176,7 +183,16 @@ int main(int argc, char** argv) {
 				if (solicitud == "FIN"){
 					endR = true;
 					int send_bytes = socket.Send(socket_fd, solicitud);
-			    	if(send_bytes == -1){
+			    		if(send_bytes == -1){
+						cerr << "Error al enviar datos: " << strerror(errno) << endl;
+						// Cerramos el socket
+						socket.Close(socket_fd);
+						exit(1);
+					}
+				}
+				else{
+					int send_bytes = socket.Send(socket_fd, solicitud);
+					if(send_bytes == -1){
 						cerr << "Error al enviar datos: " << strerror(errno) << endl;
 						// Cerramos el socket
 						socket.Close(socket_fd);
