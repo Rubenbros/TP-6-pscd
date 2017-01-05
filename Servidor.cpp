@@ -34,16 +34,14 @@ void Proceso(Socket socket, int client_fd,middleware& monumentos,middleware& res
 		//Prepara la respuesta
 		Objeto listaMonumentos[5];
 		buscarObjetos(queries, monumentos, listaMonumentos, error);
-		if(error != -1){
-			//Si no se ha encontrado
-			respuesta="Nada encontrado";
-		}
-		else{
+		if(error == 0)respuesta="Nada encontrado";
+		else if(error ==-1){
 			//Prepara una lista con las urls de los monumentos para enviar
 			respuesta=getLink(listaMonumentos[i]);
 			for (i=1;i < 5 && getTitle(listaMonumentos[i]) != "";i++)
 				respuesta+= "," + getLink(listamonumentos[i]); 
 		}
+		else respuesta="No puedo atenderte";
 		int send_bytes = socket.Send(client_fd, resp);
 		if(send_bytes == -1) {
 			cerr << "Error al enviar datos: " << strerror(errno) << endl;
@@ -70,7 +68,27 @@ void Proceso(Socket socket, int client_fd,middleware& monumentos,middleware& res
 			}
 		}
 		else if(buffer!="OTRA BUSQUEDA"){
-			
+			/*
+			* Aqui falta recibir el monumento y enviar el mensaje con los restaurantes
+			*/
+			servicios++;
+			rcv_bytes = socket.Recv(client_fd, buffer, MESSAGE_SIZE);
+			if(rcv_bytes == -1) {
+				cerr << "Error al recibir datos: " << strerror(errno) << endl;
+				// Cerramos los sockets
+				socket.Close(client_fd);
+			}
+			if(buffer=="FIN"){
+				end=true;
+				respuesta=to_string(5*servicios);
+				send_bytes = socket.Send(client_fd, respuesta);
+				if(send_bytes == -1) {
+					cerr << "Error al enviar datos: " << strerror(errno) << endl;
+					// Cerramos los sockets
+					socket.Close(client_fd);
+					exit(1);
+				}
+			}
 		}
 	}
 }
