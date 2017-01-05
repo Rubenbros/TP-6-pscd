@@ -48,13 +48,12 @@ int main(int argc, char** argv) {
 
     
     string mensaje;
-    string enviarM = "";
-    cout << "Termino referente a un monumento (FIN para acabar): ";
-	getline(cin, enviarM);
-    int i = 1;
     bool endR = false;
     while(!endR){
-    	enviarM = "";
+    	string enviarM = "";
+	    cout << "Termino referente a un monumento (FIN para acabar): ";
+		getline(cin, enviarM);
+	    int i = 1;
 		do{
 			// Leer mensaje de la entrada estandar
 			cout << "Termino referente a un monumento (FIN para acabar): ";
@@ -71,6 +70,7 @@ int main(int argc, char** argv) {
 		} while(i < 5);
 
 		// Enviamos el mensaje
+		cout << enviarM << endl;
 	    int send_bytes = socket.Send(socket_fd, enviarM);
 
 	    if(send_bytes == -1){
